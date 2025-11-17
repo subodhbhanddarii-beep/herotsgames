@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HEROTS – Futuristic Game Hub</title>
+
+<style>
+/* ===== GLOBAL SITE STYLE ===== */
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(160deg, #020202, #0a0f1f);
+    color: #e6f1ff;
+    overflow-x: hidden;
+}
+
+header {
+    text-align: center;
+    padding: 50px 20px;
+    color: #78c4ff;
+    text-shadow: 0 0 15px #008cff;
+    font-size: 3rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+}
+
+.subheader {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #cce8ff;
+    margin-top: -20px;
+}
+
+/* Sections for long layout */
+.section {
+    padding: 40px;
+    text-align: center;
+}
+.section:nth-child(odd) {
+    background: rgba(255,255,255,0.03);
+}
+
+/* Cards */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 35px;
+    padding: 30px;
+}
+
+.card {
+    width: 260px;
+    background: rgba(255,255,255,0.07);
+    padding: 20px;
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 0 25px rgba(0,140,255,0.3);
+    transition: 0.3s;
+    cursor: pointer;
+}
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 0 35px rgba(0,140,255,0.6);
+}
+
+.card h2 {
+    color: #78c4ff;
+}
+.card p {
+    color: #d6eaff;
+}
+
+/* Modal */
+#gameModal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.92);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameBox {
+    width: 90%;
+    max-width: 550px;
+    background: #050a16;
+    border: 2px solid #78c4ff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 25px #008cff;
+    text-align: center;
+}
+
+/* Buttons */
+button {
+    background: #008cff;
+    border: none;
+    padding: 12px 20px;
+    color: #fff;
+    border-radius: 10px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+button:hover {
+    background: #5bb7ff;
+}
+
+.grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, 110px); 
+    grid-gap: 8px;
+    justify-content: center;
+}
+
+.cell {
+    width: 110px;
+    height: 110px;
+    background: rgba(255,255,255,0.05);
+    font-size: 3rem;
+    color: #78c4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* ==== MINESWEEPER ==== */
+.mine-grid {
+    display: grid;
+    justify-content: center;
+    grid-template-columns: repeat(6, 40px);
+    gap: 5px;
+}
+.mine {
+    width: 40px;
+    height: 40px;
+    background: #0a0f1f;
+    border: 1px solid #78c4ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #78c4ff;
+    font-size: 1.2rem;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #78c4ff;
+    opacity: 0.8;
+}
+input[type="number"] {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #78c4ff;
+    background: #020202;
+    color: #78c4ff;
+    width: 80px;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<header>HEROTS</header>
+<p class="subheader">A futuristic blue-white-black game dimension.</p>
+
+<div class="section"><h2>✨ Welcome to HEROTS Arcade</h2></div>
+<div class="section"><p>Explore neon games built for fun, skill, and challenge.</p></div>
+
+<div class="container">
+    <div class="card" onclick="openGame('tic')"><h2>Tic-Tac-Toe</h2><p>Classic neon XO.</p></div>
+    <div class="card" onclick="openGame('guess')"><h2>Guess the Number</h2><p>Test your luck & logic!</p></div>
+    <div class="card" onclick="openGame('mine')"><h2>Minesweeper</h2><p>Find safe tiles.</p></div>
+    <div class="card" onclick="openGame('reaction')"><h2>Reaction Test</h2><p>Click fast!</p></div>
+</div>
+
+<div class="section"><h2>🚀 More games coming soon.</h2></div>
+
+<footer>© 2025 HEROTS. All Rights Reserved.</footer>
+
+<!-- Modal -->
+<div id="gameModal"><div id="gameBox"></div></div>
+
+<script>
+/* ===== MODAL ===== */
+function openGame(type) {
+    document.getElementById("gameModal").style.display = "flex";
+    if (type === "tic") loadTicTacToe();
+    if (type === "mine") loadMinesweeper();
+    if (type === "reaction") loadReaction();
+    if (type === "guess") loadGuessNumber();
+}
+function closeModal() {
+    document.getElementById("gameModal").style.display = "none";
+}
+
+/* ===== TIC TAC TOE ===== */
+function loadTicTacToe() {
+    const box = document.getElementById("gameBox");
+    box.innerHTML = `
+        <h2>Tic Tac Toe</h2>
+        <div class="grid"></div>
+        <button onclick="loadTicTacToe()">Restart</button>
+        <button onclick="closeModal()">Close</button>
+    `;
+
+    let grid = box.querySelector(".grid");
+    let board = Array(9).fill("");
+    let turn = "X";
+
+    board.forEach((_, i) => {
+        let cell = document.createElement("div");
+        cell.className = "cell";
+        cell.onclick = () => {
+            if (!board[i]) {
+                board[i] = turn;
+                cell.textContent = turn;
+                turn = turn === "X" ? "O" : "X";
+            }
+        };
+        grid.appendChild(cell);
+    });
+}
+
+/* ===== MINESWEEPER ===== */
+function loadMinesweeper() {
+    const box = document.getElementById("gameBox");
+    box.innerHTML = `
+        <h2>Minesweeper</h2>
+        <div class="mine-grid"></div>
+        <button onclick="loadMinesweeper()">Restart</button>
+        <button onclick="closeModal()">Close</button>
+    `;
+
+    const grid = box.querySelector(".mine-grid");
+    let mines = Array(36).fill(0);
+    let mineCount = 6;
+
+    while (mineCount--) mines[Math.floor(Math.random()*36)] = 1;
+
+    mines.forEach((mine, i) => {
+        let tile = document.createElement("div");
+        tile.className = "mine";
+
+        tile.onclick = () => {
+            if (mine === 1) {
+                tile.style.background = "red";
+                tile.innerText = "💣";
+                alert("BOOM! You hit a mine!");
+                loadMinesweeper();
+            } else {
+                tile.style.background = "#001a33";
+                tile.innerText = "•";
+            }
+        };
+        grid.appendChild(tile);
+    });
+}
+
+/* ===== REACTION TEST ===== */
+function loadReaction() {
+    const box = document.getElementById("gameBox");
+    box.innerHTML = `
+        <h2>Reaction Test</h2>
+        <p>Wait for BLUE, then click fast!</p>
+        <div id="reactBox" style="
+            width:300px;height:150px;margin:20px auto;
+            background:#222;color:#fff;font-size:1.5rem;
+            display:flex;justify-content:center;align-items:center;
+            border-radius:12px;cursor:pointer;
+        ">Wait...</div>
+        <button onclick="loadReaction()">Restart</button>
+        <button onclick="closeModal()">Close</button>
+    `;
+
+    let boxArea = document.getElementById("reactBox");
+    let start = 0;
+
+    setTimeout(() => {
+        boxArea.style.background = "#008cff";
+        boxArea.textContent = "CLICK!";
+        start = Date.now();
+    }, Math.random()*2000+1000);
+
+    boxArea.onclick = () => {
+        if (start) {
+            let t = Date.now() - start;
+            boxArea.textContent = `${t} ms`;
+        }
+    };
+}
+
+/* ===== GUESS THE NUMBER ===== */
+function loadGuessNumber() {
+    const box = document.getElementById("gameBox");
+    let number = Math.floor(Math.random()*100)+1;
+    box.innerHTML = `
+        <h2>Guess the Number</h2>
+        <p>I'm thinking of a number between 1 and 100. Can you guess it?</p>
+        <input type="number" id="guessInput" min="1" max="100" placeholder="1-100">
+        <button onclick="checkGuess()">Guess</button>
+        <p id="feedback"></p>
+        <button onclick="loadGuessNumber()">Restart</button>
+        <button onclick="closeModal()">Close</button>
+    `;
+
+    window.checkGuess = () => {
+        let guess = parseInt(document.getElementById("guessInput").value);
+        let feedback = document.getElementById("feedback");
+        if (!guess || guess < 1 || guess > 100) feedback.textContent = "Enter a valid number!";
+        else if (guess < number) feedback.textContent = "Too low! 🔵";
+        else if (guess > number) feedback.textContent = "Too high! 🔵";
+        else feedback.textContent = "🎉 Correct! You guessed it!";
+    }
+}
+</script>
+
+</body>
+</html>
